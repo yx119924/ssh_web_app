@@ -1,0 +1,57 @@
+/* ============================================================
+   App 全局样式
+   ============================================================ */
+
+/* 重置浏览器默认样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 页面根元素 */
+html, body, #root {
+  /* 占满整个视口 */
+  width: 100%;
+  height: 100%;
+  /* 防止页面滚动（终端自己处理滚动） */
+  overflow: hidden;
+  /* 背景色：深色主题 */
+  background: #1a1a2e;
+  /* 字体 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* 禁止用户选择文字（终端中误触会选中，体验不好） */
+  -webkit-user-select: none;
+  user-select: none;
+  /* 禁止 iOS 的长按弹出菜单 */
+  -webkit-touch-callout: none;
+}
+
+/* 整个应用的容器 */
+.app {
+  /* 占满屏幕 */
+  width: 100%;
+  height: 100%;
+  /* 纵向弹性布局 */
+  display: flex;
+  flex-direction: column;
+  /* 背景色 */
+  background: #1a1a2e;
+}
+
+/*
+  当连接上 SSH 时，需要给状态栏留出空间
+  状态栏高度 40px，所以终端容器需要减去这个高度
+*/
+.app.connected .terminal-wrapper {
+  /* calc() 计算：100vh（整个视口高度） - 40px（状态栏高度） */
+  height: calc(100vh - 40px);
+}
+
+/* 终端区域的包裹元素 */
+.app .terminal-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

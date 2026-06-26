@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <!--
+    视口（viewport）配置：这是移动端适配的关键！
+    width=device-width：宽度等于设备宽度
+    initial-scale=1.0：初始缩放比例为 1
+    maximum-scale=1.0：用户不能放大（PWA 全屏体验）
+    user-scalable=no：禁止用户手动缩放页面
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <!--
+    主题色：影响浏览器的地址栏颜色和状态栏颜色
+    这里使用深色，和终端的暗色主题搭配
+  -->
+  <meta name="theme-color" content="#1a1a2e" />
+
+  <!--
+    Apple 移动设备专用配置
+    apple-mobile-web-app-capable：允许添加到主屏幕后以全屏模式打开
+    apple-mobile-web-app-status-bar-style：状态栏样式
+  -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- PWA 配置文件链接 -->
+  <link rel="manifest" href="/src/pwa/manifest.json" />
+
+  <title>SSH Terminal</title>
+</head>
+<body>
+  <!-- React 应用会挂载到这个 div 上 -->
+  <div id="root"></div>
+
+  <!--
+    注册 Service Worker
+    Service Worker 是 PWA 的核心，负责：
+      1. 缓存静态资源，实现离线访问
+      2. 拦截网络请求，加速加载
+  -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/src/pwa/sw.js');
+    }
+  </script>
+
+  <!--
+    引入 xterm.js 的 CSS 样式文件
+    xterm.js 需要这些样式来正确渲染终端
+  -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" />
+
+  <!-- Vite 的入口脚本 -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+/* ============================================================
+   ConnectForm 样式
+   连接表单的外观：深色主题，圆角输入框，大按钮（手指友好）
+   ============================================================ */
+
+/* 整个表单的容器 */
+.connect-form {
+  /* 最大宽度 400px，手机屏幕够用，太大的屏幕也不会太宽 */
+  max-width: 400px;
+  /* 水平居中 */
+  margin: 60px auto 0;
+  /* 内边距 */
+  padding: 24px 20px;
+}
+
+/* 标题 */
+.connect-form h1 {
+  /* 文字颜色：浅白 */
+  color: #e0e0e0;
+  /* 字体大小 */
+  font-size: 24px;
+  /* 文字居中 */
+  text-align: center;
+  /* 底部间距 */
+  margin-bottom: 8px;
+}
+
+/* 副标题 */
+.connect-form .subtitle {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* 每个表单项的容器 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+/* 表单标签 */
+.form-group label {
+  /* 标签和输入框分行显示 */
+  display: block;
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+/* 输入框统一样式 */
+.form-group input {
+  /* 占满父容器宽度 */
+  width: 100%;
+  /* 内边距：上下 12px，左右 14px */
+  padding: 12px 14px;
+  /* 背景色：深灰 */
+  background: #16213e;
+  /* 边框：细线 */
+  border: 1px solid #333;
+  /* 圆角 */
+  border-radius: 8px;
+  /* 文字颜色 */
+  color: #e0e0e0;
+  /* 字体大小（不小于 16px 防止 iOS 自动缩放） */
+  font-size: 16px;
+  /* 让盒模型包含 padding 和 border */
+  box-sizing: border-box;
+  /* 过渡动画：边框颜色变化 0.2 秒 */
+  transition: border-color 0.2s;
+  /* 防止 iOS 自动大写 */
+  -webkit-appearance: none;
+}
+
+/* 输入框获得焦点时（用户点击时） */
+.form-group input:focus {
+  /* 取消默认的外边框 */
+  outline: none;
+  /* 边框变为亮色，提示用户正在编辑 */
+  border-color: #00d4ff;
+}
+
+/* 端口输入框特殊处理：宽度较小 */
+.form-group input.port-input {
+  width: 100px;
+}
+
+/* 连接按钮 */
+.connect-form button {
+  /* 占满宽度 */
+  width: 100%;
+  /* 内边距 */
+  padding: 14px;
+  /* 背景色：亮蓝绿色 */
+  background: #00d4ff;
+  /* 文字颜色 */
+  color: #1a1a2e;
+  /* 无边框 */
+  border: none;
+  /* 圆角 */
+  border-radius: 8px;
+  /* 字体大小 */
+  font-size: 17px;
+  /* 粗体 */
+  font-weight: 600;
+  /* 鼠标变手指 */
+  cursor: pointer;
+  /* 顶部间距 */
+  margin-top: 8px;
+  /* 过渡动画 */
+  transition: background 0.2s, transform 0.1s;
+}
+
+/* 手指按下按钮时 */
+.connect-form button:active {
+  /* 按下时稍微变色 */
+  background: #00b8e0;
+  /* 按下时稍微缩小，有反馈感 */
+  transform: scale(0.98);
+}
+
+/* 按钮禁用时（正在连接中） */
+.connect-form button:disabled {
+  background: #555;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* 错误提示 */
+.connect-form .error-message {
+  color: #ff6b6b;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 12px;
+}

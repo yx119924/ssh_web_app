@@ -1,0 +1,71 @@
+/* ============================================================
+   StatusBar 样式
+   固定在屏幕底部的状态栏
+   ============================================================ */
+
+.status-bar {
+  /* 固定在底部 */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* 高度 */
+  height: 40px;
+  /* 背景：深色 */
+  background: #16213e;
+  /* 顶部细线 */
+  border-top: 1px solid #333;
+  /* 水平排列子元素 */
+  display: flex;
+  /* 左右对齐 */
+  align-items: center;
+  /* 左右留白 */
+  padding: 0 12px;
+  /* 字体大小 */
+  font-size: 13px;
+  /* 文字颜色 */
+  color: #aaa;
+  /* 层级：确保在终端之上 */
+  z-index: 10;
+}
+
+/* 左侧信息区域（主机名和状态指示） */
+.status-bar .status-left {
+  /* 占满剩余空间（把右侧按钮推到最右） */
+  flex: 1;
+  /* 水平排列 */
+  display: flex;
+  align-items: center;
+  /* 间距 */
+  gap: 8px;
+}
+
+/* 状态指示灯（一个小圆点） */
+.status-bar .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  /* 默认红色（断开） */
+  background: #ff6b6b;
+}
+
+/* 已连接状态：绿色 */
+.status-bar .status-dot.connected {
+  background: #50fa7b;
+}
+
+/* 断开按钮 */
+.status-bar button {
+  background: transparent;
+  border: 1px solid #555;
+  color: #ccc;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* 断开按钮按下 */
+.status-bar button:active {
+  background: #333;
+}
