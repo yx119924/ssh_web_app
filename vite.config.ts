@@ -5,6 +5,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  // 设置项目根目录为 client/，index.html 和 src/ 都在里面
+  root: 'client',
+
   // 使用 React 插件，支持 JSX 语法
   plugins: [react()],
 
