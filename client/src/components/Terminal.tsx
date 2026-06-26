@@ -109,7 +109,7 @@ export function Terminal({ onInput, outputData, onResize }: TerminalProps) {
         ref={terminalRef} 把 div 和 Hook 中的引用绑定
         xterm.js 会在这个 div 里面创建 canvas 元素来渲染终端
       */}
-      <div ref={terminalRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={terminalRef as unknown as React.Ref<HTMLDivElement>} style={{ width: '100%', height: '100%' }} />
     </div>
   );
 }
