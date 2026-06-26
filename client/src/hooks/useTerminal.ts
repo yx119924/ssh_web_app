@@ -92,6 +92,12 @@ export function useTerminal(options: UseTerminalOptions): UseTerminalReturn {
   const termRef = useRef<Terminal | null>(null);
   /** FitAddon（自适应大小插件）的引用 */
   const fitAddonRef = useRef<FitAddon | null>(null);
+  /**
+   * 用 ref 保存最新的 onInput 回调
+   * 解决 useEffect([]) 闭包捕获旧回调的问题
+   */
+  const onInputRef = useRef(onInput);
+  onInputRef.current = onInput;
 
   // ---- 初始化终端 ----
   useEffect(() => {
@@ -138,7 +144,27 @@ export function useTerminal(options: UseTerminalOptions): UseTerminalReturn {
     // 第 6 步：监听用户输入
     // 当用户在终端中按键时，把数据传给 SSH
     term.onData((data: string) => {
-      onInput(data);
+      onInputRef.current(data);
+    });
+
+    // 第 7 步：注册自定义键盘事件处理器
+    // 解决移动端回退键（Backspace）只能删一格的问题：
+    //
+    // xterm.js 使用隐藏的 <textarea> 触发虚拟键盘。每次按键后 textarea
+    // 会被清空。Backspace 在空 textarea 上执行删除时，浏览器不触发
+    // input 事件，导致 onData 不会被调用。
+    //
+    // 通过在 keydown 阶段直接拦截 Backspace 按键并手动发送 \x7f（DEL），
+    // 绕过 textarea 的缺陷，确保每次按下回退键都能正确删除字符。
+    term.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+      if (event.type === 'keydown' && event.key === 'Backspace') {
+        // 手动发送 DEL 字符（这是终端中回退的标准编码）
+        onInputRef.current('\x7f');
+        // 返回 false 阻止 xterm.js 再次处理此事件（避免重复删除）
+        return false;
+      }
+      // 其他按键交给 xterm.js 正常处理
+      return true;
     });
 
     // 保存实例引用

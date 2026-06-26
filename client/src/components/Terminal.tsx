@@ -21,16 +21,23 @@ import './Terminal.css';
 interface TerminalProps {
   /** 当用户在终端中按键时触发 */
   onInput: (data: string) => void;
-  /** 收到 SSH 数据时写入（来自父组件的 WebSocket 消息） */
-  outputData: string | null;
   /** 当终端尺寸变化时触发，需要通知后端调整 SSH 窗口大小 */
   onResize: (cols: number, rows: number) => void;
+  /**
+   * 终端初始化完成后的回调
+   * 把 writeToTerminal 和 fitTerminal 函数传给父组件，
+   * 让父组件可以直接写入终端数据，绕过 React 状态批处理
+   */
+  onReady?: (handlers: {
+    writeToTerminal: (data: string) => void;
+    fitTerminal: () => void;
+  }) => void;
 }
 
 /**
  * 终端显示组件
  */
-export function Terminal({ onInput, outputData, onResize }: TerminalProps) {
+export function Terminal({ onInput, onResize, onReady }: TerminalProps) {
   // 使用我们定义的 useTerminal Hook
   const { terminalRef, writeToTerminal, fitTerminal } = useTerminal({ onInput });
 
@@ -38,13 +45,14 @@ export function Terminal({ onInput, outputData, onResize }: TerminalProps) {
   const onResizeRef = useRef(onResize);
   onResizeRef.current = onResize;
 
-  // ---- 处理来自 SSH 的数据 ----
-  // 当 outputData 变化时，把新数据写入终端
+  // ---- 向父组件暴露终端操作方法 ----
+  // 这样父组件（App）可以直接调用 writeToTerminal 写入 SSH 数据，
+  // 绕过 React 状态管理，避免 React 18 自动批处理导致 WebSocket 消息丢失
   useEffect(() => {
-    if (outputData) {
-      writeToTerminal(outputData);
+    if (onReady) {
+      onReady({ writeToTerminal, fitTerminal });
     }
-  }, [outputData, writeToTerminal]);
+  }, [writeToTerminal, fitTerminal, onReady]);
 
   // ---- 移动端适配：监听屏幕变化 ----
   useEffect(() => {

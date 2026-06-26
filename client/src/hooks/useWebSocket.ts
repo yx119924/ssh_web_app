@@ -16,6 +16,18 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
+ * Hook 的参数类型
+ */
+interface UseWebSocketOptions {
+  /**
+   * 可选的直接消息回调
+   * 每条 WebSocket 消息到达时立即调用，绕过 React 状态批处理
+   * 用于终端输出等高频实时数据流，避免消息被 React 18 自动批处理丢失
+   */
+  onMessage?: (data: any) => void;
+}
+
+/**
  * Hook 返回的类型定义
  */
 interface UseWebSocketReturn {
@@ -45,7 +57,7 @@ interface UseWebSocketReturn {
  * @param url - WebSocket 服务地址（如 ws://localhost:3001/ws）
  * @returns 操作 WebSocket 的方法和状态
  */
-export function useWebSocket(url: string): UseWebSocketReturn {
+export function useWebSocket(url: string, options?: UseWebSocketOptions): UseWebSocketReturn {
   // ---- 状态定义 ----
   // useState：React 的状态管理，状态变化时会自动刷新界面
 
@@ -59,6 +71,13 @@ export function useWebSocket(url: string): UseWebSocketReturn {
 
   /** WebSocket 实例的引用 */
   const wsRef = useRef<WebSocket | null>(null);
+
+  /**
+   * 用 ref 保存最新的 onMessage 回调
+   * 避免 WebSocket onmessage 闭包捕获到过时的回调
+   */
+  const onMessageRef = useRef(options?.onMessage);
+  onMessageRef.current = options?.onMessage;
 
   // ---- 建立连接 ----
   // useEffect：在组件挂载时执行（页面加载时）
@@ -78,6 +97,11 @@ export function useWebSocket(url: string): UseWebSocketReturn {
       try {
         const data = JSON.parse(event.data);
         setLastMessage(data);
+        // 绕过 React 状态批处理，直接回调给调用方
+        // 这对于终端输出等高频实时数据流至关重要——
+        // React 18 的自动批处理会合并快速连续的状态更新，
+        // 导致中间的 WebSocket 消息丢失
+        onMessageRef.current?.(data);
       } catch {
         console.error('[WebSocket] 无法解析服务器消息:', event.data);
       }

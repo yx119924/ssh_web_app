@@ -69,16 +69,33 @@ export function App() {
   const [connectedHost, setConnectedHost] = useState('');
   /** 错误信息 */
   const [error, setError] = useState<string | null>(null);
-  /** 来自 SSH 的数据（写入终端） */
-  const [outputData, setOutputData] = useState<string | null>(null);
+
+  /**
+   * 直接写入终端的函数引用
+   * 终端输出数据通过这个 ref 直接写入 xterm.js，
+   * 不经过 React 状态 → 避免 React 18 自动批处理导致消息丢失
+   */
+  const writeToTerminalRef = useRef<((data: string) => void) | null>(null);
 
   // 用 ref 存储连接参数，用于 resize 消息
   const connectParamsRef = useRef<ConnectParams | null>(null);
 
   // ---- WebSocket 连接 ----
-  const { send, lastMessage, readyState, close: closeWs } = useWebSocket(getWebSocketUrl());
+  // onMessage 回调在每条 WebSocket 消息到达时立即调用，
+  // 对于 'output' 类型的消息，直接写入终端，绕过 React 状态
+  const { send, lastMessage, readyState, close: closeWs } = useWebSocket(getWebSocketUrl(), {
+    onMessage: (data: any) => {
+      // 高频终端输出：直接写入 xterm.js，不经过 React 状态
+      // 这样可以避免 React 18 自动批处理合并状态更新导致中间消息丢失
+      if (data.type === 'output' && writeToTerminalRef.current) {
+        writeToTerminalRef.current(data.data || '');
+      }
+    },
+  });
 
-  // ---- 处理服务器发来的消息 ----
+  // ---- 处理服务器发来的消息（仅处理连接状态变更） ----
+  // 注意：'output' 类型消息已在 useWebSocket 的 onMessage 回调中
+  //       直接写入终端，不经过此 useEffect，避免消息丢失
   useEffect(() => {
     if (!lastMessage) return;
 
@@ -92,8 +109,8 @@ export function App() {
         break;
 
       case 'output':
-        // 收到 SSH 数据，写入终端
-        setOutputData(msg.data || '');
+        // output 消息已通过 onMessage 回调直接写入终端
+        // 这里不需要处理（保留此分支避免触发 default 报错）
         break;
 
       case 'error':
@@ -154,6 +171,16 @@ export function App() {
     send({ type: 'resize', cols, rows });
   }, [send]);
 
+  // ---- 终端就绪回调 ----
+  // 当 Terminal 组件初始化完成后，把 writeToTerminal 函数存储到 ref 中
+  // 供 WebSocket onMessage 回调直接调用
+  const handleTerminalReady = useCallback(
+    (handlers: { writeToTerminal: (data: string) => void; fitTerminal: () => void }) => {
+      writeToTerminalRef.current = handlers.writeToTerminal;
+    },
+    []
+  );
+
   // ---- 断开连接 ----
   const handleDisconnect = useCallback(() => {
     closeWs();
@@ -175,8 +202,8 @@ export function App() {
           <div className="terminal-wrapper">
             <Terminal
               onInput={handleTerminalInput}
-              outputData={outputData}
               onResize={handleTerminalResize}
+              onReady={handleTerminalReady}
             />
           </div>
           <StatusBar
